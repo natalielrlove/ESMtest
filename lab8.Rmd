@@ -39,3 +39,31 @@ leaflet(oil_sf) %>%
 ```
 
 
+##Make a Tmap plot with the Texas state shapefile - if you need bounds, you need a shapefile
+```{r}
+states <- st_read(dsn = ".", layer = "states")
+
+tex_border <- states %>% 
+  filter(STATE_NAME == "Texas") %>% 
+  st_transform(4326)
+
+plot(tex_border)
+
+tm_shape(tex_border) +
+  tm_polygons() +
+  tm_shape(oil_sf) +
+  tm_dots(size = 0.3)
+
+#Are these spatially random (CSR)? or non random?
+```
+
+##Convert the data to spatial points patterns - combination of point data dnt he bounding window
+```{r}
+spill_sp <- as(oil_sf, "Spatial")
+spill_ppp <- as(spill_sp, "ppp") ###specific version of spatial data to do point pattern analysis
+tx_sp <- as(tex_border, "Spatial")
+tx_owin <- as(tx_sp, "owin")
+
+all_ppp <- ppp(spill_ppp$x, spill_ppp$y, window = tx_owin)
+```
+
