@@ -67,3 +67,43 @@ tx_owin <- as(tx_sp, "owin")
 all_ppp <- ppp(spill_ppp$x, spill_ppp$y, window = tx_owin)
 ```
 
+##Density Plot
+```{r}
+plot(density(all_ppp, sigma = 0.4))
+```
+
+##Quadrat test for spatial evenness
+oil_qt <- quadrat.test(all_ppp, nx = 5, ny = 5) #nx = 5, five regions horizontally
+```{r}
+oil_qt <- quadrat.test(all_ppp, nx = 5, ny = 5) #nx = 5, five regions horizontally
+oil_qt
+
+#performs chi squared test, which means we can reject the null hypothesis of CSR or spatial evenness, retain alternative that the data are NOT CSR (or..not evenly distributed), calculates relative to area of the quadrat
+
+plot(all_ppp)
+plot(oil_qt, add = TRUE, cex = 0.5)
+```
+
+##G-function for nearest neighbor analysis
+```{r}
+r <- seq(0,1, by = 0.01)
+oil_gfun <- envelope(all_ppp, fun = Gest, r = r, nsim = 100)
+
+plot(oil_gfun)
+
+ggplot(oil_gfun, aes(x = r, y = obs)) + 
+  geom_line() + 
+  geom_line(aes(x = r, y = theo), color = "red") #theo, theoretical r
+```
+
+##Nearest neighbor using the L-function (Ripley's K but standardized)
+```{r}
+r2 <- seq(0,3, by = 0.5)
+
+oil_lfun <- envelope(all_ppp, fun = Lest, r = r2, nsim = 20, global = TRUE)
+
+ggplot(oil_lfun, aes(x = r2, y = obs)) +
+  geom_line(color = "black") +
+  geom_line(aes(x = r2, y = theo), color = "red")
+```
+
